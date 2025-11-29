@@ -543,8 +543,14 @@
                                 <span class="font-mono text-sm text-slate-300">${engine.impeller || '-'}</span>
                             </div>
                             <div class="col-span-2">
-                                <span class="text-[10px] uppercase text-slate-500 block">Filter (Olja / Bränsle)</span>
-                                <span class="font-mono text-sm text-slate-300">${engine.oil_filter || '-'} / ${engine.fuel_filter || '-'}</span>
+                                <div class="text-[10px] uppercase font-semibold block mb-1">
+                                    <span class="text-amber-400">Olja</span> <span class="text-slate-500">/</span> <span class="text-rose-400">Bränsle</span> Filter
+                                </div>
+                                <div class="font-mono text-sm break-words">
+                                    <span class="text-amber-400">${engine.oil_filter || '-'}</span>
+                                    <span class="text-slate-500 mx-1">/</span>
+                                    <span class="text-rose-400">${engine.fuel_filter || '-'}</span>
+                                </div>
                             </div>
                             <div class="col-span-2">
                                 <span class="text-[10px] uppercase text-slate-500 block">Övrigt</span>
