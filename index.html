@@ -66,6 +66,17 @@
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
             outline: none;
         }
+
+        /* Filter buttons transition */
+        .filter-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .filter-btn.active {
+            background-color: #0ea5e9; /* brand-500 */
+            color: white;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
+        }
     </style>
 </head>
 <body class="bg-dark-950 text-slate-300 font-sans antialiased min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-dark-950 to-black">
@@ -83,7 +94,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-white tracking-tight leading-none">Johans Serviceguide</h1>
-                    <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Marinmotor och drev</p>
+                    <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Marina motorer & Drev</p>
                 </div>
             </div>
             <!-- Statusindikator (Visuell) -->
@@ -107,21 +118,37 @@
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-400">Motorer & Drev</span>
             </h2>
             
+            <!-- Tillverkare Filter Knappar -->
+            <div class="flex flex-wrap justify-center gap-3 mb-8">
+                <button onclick="setFilter('all')" id="btn-all" class="filter-btn active px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500">
+                    Visa Alla
+                </button>
+                <button onclick="setFilter('VP')" id="btn-VP" class="filter-btn px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500 hover:text-white">
+                    Volvo Penta
+                </button>
+                <button onclick="setFilter('Yanmar')" id="btn-Yanmar" class="filter-btn px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500 hover:text-white">
+                    Yanmar
+                </button>
+                <button onclick="setFilter('Merc')" id="btn-Merc" class="filter-btn px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500 hover:text-white">
+                    Mercruiser
+                </button>
+            </div>
+
             <div class="relative group max-w-2xl mx-auto">
                 <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-emerald-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                 <div class="relative flex items-center">
                     <svg class="absolute left-4 w-6 h-6 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <input type="text" id="oil-search" placeholder="Sök modell (t.ex. D6-370, Alpha One, Yanmar 3YM...)" 
+                    <input type="text" id="oil-search" placeholder="Sök modell (t.ex. D6-370, Alpha One...)" 
                         oninput="searchOil()"
                         class="glass-input w-full rounded-xl py-4 pl-14 pr-32 text-white placeholder-slate-500 text-lg shadow-2xl">
                     <div class="absolute right-2">
-                        <kbd class="hidden md:inline-block px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-800 rounded border border-slate-700">ESC to clear</kbd>
+                        <kbd class="hidden md:inline-block px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-800 rounded border border-slate-700">ESC</kbd>
                     </div>
                 </div>
             </div>
             
             <p class="mt-4 text-sm text-slate-500">
-                Databasen innehåller Volvo Penta, Yanmar & Mercruiser. <span class="text-brand-400">Uppdateras kontinuerligt.</span>
+                Databasen uppdateras kontinuerligt. <span class="text-brand-400">Välj tillverkare ovan för att filtrera.</span>
             </p>
         </div>
 
@@ -181,7 +208,9 @@
             { model: "VP MD2030/2040", cyl: "3/4", oil: "3.5/6.5 L (15W-40)", oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", type: "Diesel" },
             { model: "VP KAD 32", cyl: "4", oil: "9.0 L (15W-40)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", type: "Diesel" },
             { model: "VP KAD 42/43/44/300", cyl: "6", oil: "11.0 L (15W-40)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", type: "Diesel" },
+            { model: "VP TAMD 31", cyl: "4", oil: "9.0 L (15W-40)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", type: "Diesel" },
             { model: "VP TAMD 41", cyl: "6", oil: "11.0 L (15W-40)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", type: "Diesel" },
+            { model: "VP D9/D11", cyl: "6", oil: "38.0 L", spec: "VDS-3 / VDS-4.5 (15W-40)", type: "Diesel" },
 
             // --- VOLVO PENTA BENSIN ---
             { model: "VP 4.3/5.0/5.7 Gi/GXi", cyl: "V6/V8", oil: "4.5-5.7 L (Syntet 25W-40)", oil_filter: "835440 / 8692305 (Insats)", fuel_filter: "3862228", impeller: "21213660", type: "Bensin" },
@@ -193,24 +222,48 @@
             { model: "Yanmar 2GM20/3GM30", cyl: "2/3", oil: "2.0/2.6 L (15W-40)", oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "124223-42092", type: "Diesel" },
             { model: "Yanmar 3YM20/30", cyl: "3", oil: "2.8 L (15W-40)", oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "128990-42200", type: "Diesel" },
             { model: "Yanmar 4JH4E", cyl: "4", oil: "5.5 L (15W-40)", oil_filter: "129150-35153", fuel_filter: "119802-55801", impeller: "129670-42531", type: "Diesel" },
+            { model: "Yanmar 4JH45/57/80/110", cyl: "4", oil: "5.0-6.0 L (15W-40)", oil_filter: "129150-35170", fuel_filter: "129A00-55800", impeller: "129670-42531", type: "Diesel" },
+            { model: "Yanmar 6LPA-STP", cyl: "6", oil: "10.5 L (15W-40)", oil_filter: "119770-90620", fuel_filter: "119773-55510", impeller: "119773-42600", type: "Diesel" },
+            { model: "Yanmar 8LV-320/350/370", cyl: "V8", oil: "10.0 L (15W-40)", oil_filter: "119798-35110", fuel_filter: "119798-55110", impeller: "119593-42202", type: "Diesel" },
+            { model: "Yanmar 6LY-serien", cyl: "6", oil: "~20.0 L (15W-40)", oil_filter: "119593-35100", fuel_filter: "41650-502330", impeller: "119574-42530", type: "Diesel" },
 
             // --- MERCRUISER BENSIN ---
-            { model: "Mercruiser 3.0L", cyl: "4", oil: "3.8 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "I drevet (Alpha)", type: "Bensin" },
+            { model: "Mercruiser 3.0L / TKS", cyl: "4", oil: "3.8 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "I drevet (Alpha)", type: "Bensin" },
             { model: "Mercruiser 4.3L V6", cyl: "V6", oil: "4.3 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "47-59362Q01", type: "Bensin" },
+            { model: "Mercruiser 4.5L V6 (Merc)", cyl: "V6", oil: "4.25 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-879885Q (Gen 3)", impeller: "47-59362Q01", type: "Bensin" },
             { model: "Mercruiser 5.0/5.7L V8", cyl: "V8", oil: "4.7 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "47-59362Q01", type: "Bensin" },
+            { model: "Mercruiser 6.2L V8 (Merc)", cyl: "V8", oil: "4.7 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-879885Q (Gen 3)", impeller: "47-59362Q01", type: "Bensin" },
             { model: "Mercruiser 8.1L (496)", cyl: "V8", oil: "8.5 L (25W-40)", oil_filter: "35-866340Q03", fuel_filter: "35-8M0047219", impeller: "47-862232A2", type: "Bensin" },
 
             // --- DREV & SEGELDREV ---
-            { model: "VP DPH / DPI", cyl: "-", oil: "5.2-5.5 L (75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
-            { model: "VP SX / DPS", cyl: "-", oil: "2.1-2.5 L (75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "I drevet (SX)", type: "Drev" },
+            { model: "VP DPH / DPI", cyl: "-", oil: "5.2-5.5 L (Syntet 75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
+            { model: "VP SX / DPS", cyl: "-", oil: "2.1-2.5 L (Syntet 75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "I drevet (SX)", type: "Drev" },
             { model: "VP 280 / 290 (SP)", cyl: "-", oil: "2.6 L (15W-40)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
             { model: "VP 290 DP / DP-E", cyl: "-", oil: "2.7 L (75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
+            { model: "VP IPS (IPS1/IPS2)", cyl: "-", oil: "13-15 L / 20+ L (75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
             { model: "VP 110S / 120S", cyl: "-", oil: "2.2-2.6 L (15W-40)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
             { model: "VP 130S / 150S", cyl: "-", oil: "2.9-3.0 L (15W-40/75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
             { model: "Merc Alpha One Gen 2", cyl: "-", oil: "1.89 L (HP Grön)", oil_filter: "-", fuel_filter: "-", impeller: "47-43026Q06", type: "Drev" },
             { model: "Merc Bravo 1/2/3", cyl: "-", oil: "2.6-3.0 L (HP Grön)", oil_filter: "-", fuel_filter: "-", impeller: "På motor", type: "Drev" },
+            { model: "Yanmar ZT370", cyl: "-", oil: "2.5 L (Syntet 75W-90)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" },
             { model: "Yanmar SD60", cyl: "-", oil: "2.8 L (15W-40)", oil_filter: "-", fuel_filter: "-", impeller: "-", type: "Drev" }
         ];
+
+        let currentFilter = 'all';
+
+        // --- Filterfunktion för knappar ---
+        function setFilter(make) {
+            currentFilter = make;
+            
+            // Uppdatera knappar (visuals)
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + make).classList.add('active');
+            
+            // Rensa sökfältet om man byter filter för tydlighet, eller behåll det?
+            // Vi behåller sökordet så man kan filtrera "D6" och sen klicka "Volvo" om man vill.
+            
+            searchOil();
+        }
 
         // --- Huvudfunktion för att rendera tabell och kort ---
         function renderTable(list) {
@@ -229,7 +282,6 @@
 
             list.forEach(engine => {
                 let badgeClass = "";
-                let modelColor = "text-white";
                 let typeLabel = engine.type;
 
                 // Styling logic
@@ -304,6 +356,15 @@
             else if(clearBtn) clearBtn.style.opacity = '0';
 
             const filtered = enginesDb.filter(engine => {
+                // Steg 1: Filtrera på Tillverkare (Knappar)
+                if (currentFilter !== 'all') {
+                    // Kontrollera om modellen innehåller filtersträngen (t.ex. "VP", "Yanmar")
+                    if (!engine.model.includes(currentFilter)) {
+                        return false;
+                    }
+                }
+
+                // Steg 2: Filtrera på Söktext
                 const searchStr = `${engine.model} ${engine.type} ${engine.oil_filter || ''} ${engine.fuel_filter || ''} ${engine.impeller || ''}`.toLowerCase();
                 return searchStr.includes(query);
             });
