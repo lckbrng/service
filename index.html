@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Johans Serviceguide</title>
+    
+    <!-- Ladda PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.11.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2023.11.1/core.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .loading {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #f59e0b;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        #app-content { display: none; }
+        
+        input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen selection:bg-amber-500 selection:text-white">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-900 z-50">
+        <div class="loading mb-4"></div>
+        <p class="text-amber-500 font-bold animate-pulse">Laddar Johans Serviceguide...</p>
+    </div>
+
+    <!-- Huvudinnehåll -->
+    <div id="app-content" class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <!-- Header -->
+        <header class="text-center mb-8 border-b border-slate-700 pb-6">
+            <h1 class="text-3xl md:text-5xl font-bold mb-2 text-white">
+                <span class="text-amber-500">Johans</span> Serviceguide
+            </h1>
+            <p class="text-slate-400">Databas för marinmotorer & drev</p>
+        </header>
+
+        <!-- VIEW: OLJEGUIDE & SERVICE (Nu enda vyn) -->
+        <div id="view-oil">
+            <div class="bg-slate-800 rounded-lg shadow-lg border border-slate-700 p-6">
+                
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-white mb-2">Sök Motor eller Drev</h2>
+                    <p class="text-slate-400 text-sm mb-4">
+                        Innehåller serviceinfo för 
+                        <span class="text-white font-semibold">Volvo Penta</span>, 
+                        <span class="text-white font-semibold">Yanmar</span> och 
+                        <span class="text-white font-semibold">Mercruiser</span>.
+                        <br>
+                        <span class="text-amber-500 font-bold block mt-1">OBS: Artikelnummer kan variera beroende på årsmodell/serienummer. Kontrollera alltid mot din motor!</span>
+                    </p>
+                    
+                    <div class="relative">
+                        <!-- Uppdaterad input med py-input för live-sökning -->
+                        <input type="text" id="oil-search" placeholder="Sök... (t.ex. DPH, Alpha One, D6, Yanmar)" 
+                            py-input="search_oil"
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white pl-10 focus:border-amber-500">
+                        <svg class="w-5 h-5 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        
+                        <button py-click="search_oil" class="absolute right-2 top-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded text-sm transition-colors">
+                            Sök
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Resultat Tabell -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr class="bg-slate-700/50 text-slate-300 border-b border-slate-600">
+                                <th class="p-3 w-1/6">Modell</th>
+                                <th class="p-3 w-1/6">Olja & Volym</th>
+                                <th class="p-3 w-1/6">Oljefilter</th>
+                                <th class="p-3 w-1/6">Bränslefilter</th>
+                                <th class="p-3 w-1/6">Impeller</th>
+                                <th class="p-3 w-1/12 hidden md:table-cell">Typ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="oil-results-body" class="text-slate-300 divide-y divide-slate-700 text-sm">
+                            <!-- Python fyller i denna -->
+                            <tr>
+                                <td colspan="6" class="p-4 text-center text-slate-500 italic">Laddar databas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center mt-12 text-slate-500 text-sm border-t border-slate-800 pt-6">
+            <p>Johans Serviceguide – Ett hjälpmedel för verkstaden.</p>
+        </footer>
+    </div>
+
+    <!-- PYTHON KOD -->
+    <script type="py">
+        from js import document
+
+        # --- DATABAS ÖVER MARINMOTORER OCH DREV ---
+        # Uppdaterad med filter och impellrar (vanliga artikelnummer/typer)
+        
+        engines_db = [
+            # --- VOLVO PENTA DIESEL ---
+            {
+                "model": "VP D1-13 / D1-20", 
+                "cyl": "2/3", 
+                "oil": "1.9/3.2 L (15W-40)", 
+                "oil_filter": "3840525", 
+                "fuel_filter": "861477", 
+                "impeller": "22222936",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP D1-30 / D2-40", 
+                "cyl": "3/4", 
+                "oil": "3.5/6.5 L (15W-40)", 
+                "oil_filter": "3840525", 
+                "fuel_filter": "861477", 
+                "impeller": "22222936",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP D2-50/55/60/75", 
+                "cyl": "4", 
+                "oil": "10.5 L (15W-40)", 
+                "oil_filter": "3840525", 
+                "fuel_filter": "861477", 
+                "impeller": "21951346",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP D3 (5-cyl)", 
+                "cyl": "5", 
+                "oil": "6.3 L (15W-40)", 
+                "oil_filter": "8692305", 
+                "fuel_filter": "31261191", 
+                "impeller": "21951352",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP D4-180/260/300", 
+                "cyl": "4", 
+                "oil": "12.5 L (15W-40)", 
+                "oil_filter": "22030848 (Bypass) / 22030852 (Full)", 
+                "fuel_filter": "21718912", 
+                "impeller": "3588475 / 21951356",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP D6-310/370/435", 
+                "cyl": "6", 
+                "oil": "20.0 L (15W-40)", 
+                "oil_filter": "22030848 (Bypass) / 22030852 (Full)", 
+                "fuel_filter": "21718912", 
+                "impeller": "3588475 / 21951356",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP MD2020", 
+                "cyl": "3", 
+                "oil": "2.8 L (15W-40)", 
+                "oil_filter": "3840525", 
+                "fuel_filter": "861477", 
+                "impeller": "3593659",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP MD2030/2040", 
+                "cyl": "3/4", 
+                "oil": "3.5/6.5 L (15W-40)", 
+                "oil_filter": "3840525", 
+                "fuel_filter": "861477", 
+                "impeller": "22222936",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP KAD 32", 
+                "cyl": "4", 
+                "oil": "9.0 L (15W-40)", 
+                "oil_filter": "423135", 
+                "fuel_filter": "21624740", 
+                "impeller": "21951356",
+                "type": "Diesel"
+            },
+            {
+                "model": "VP KAD 42/43/44/300", 
+                "cyl": "6", 
+                "oil": "11.0 L (15W-40)", 
+                "oil_filter": "423135", 
+                "fuel_filter": "21624740", 
+                "impeller": "21951356",
+                "type": "Diesel"
+            },
+
+            # --- VOLVO PENTA BENSIN ---
+            {
+                "model": "VP 4.3/5.0/5.7 Gi/GXi", 
+                "cyl": "V6/V8", 
+                "oil": "4.5-5.7 L (Syntet 25W-40)", 
+                "oil_filter": "835440 / 8692305 (Insats)", 
+                "fuel_filter": "3862228", 
+                "impeller": "21213660 (Havsvattenpump)",
+                "type": "Bensin"
+            },
+            {
+                "model": "VP V6/V8 (Gen 5)", 
+                "cyl": "V6/V8", 
+                "oil": "5.7-7.1 L (Syntet)", 
+                "oil_filter": "21695869 (Insats)", 
+                "fuel_filter": "24332306", 
+                "impeller": "22398561",
+                "type": "Bensin"
+            },
+            {
+                "model": "VP AQ130/145/151", 
+                "cyl": "4", 
+                "oil": "3.8 L (15W-40)", 
+                "oil_filter": "3517857", 
+                "fuel_filter": "-", 
+                "impeller": "21951350",
+                "type": "Bensin"
+            },
+
+            # --- YANMAR DIESEL ---
+            {
+                "model": "Yanmar 1GM10", 
+                "cyl": "1", 
+                "oil": "1.3 L (15W-40)", 
+                "oil_filter": "119305-35151", 
+                "fuel_filter": "104500-55710", 
+                "impeller": "128100-42070",
+                "type": "Diesel"
+            },
+            {
+                "model": "Yanmar 2GM20/3GM30", 
+                "cyl": "2/3", 
+                "oil": "2.0/2.6 L (15W-40)", 
+                "oil_filter": "119305-35151", 
+                "fuel_filter": "104500-55710", 
+                "impeller": "124223-42092",
+                "type": "Diesel"
+            },
+            {
+                "model": "Yanmar 3YM20/30", 
+                "cyl": "3", 
+                "oil": "2.8 L (15W-40)", 
+                "oil_filter": "119305-35151", 
+                "fuel_filter": "104500-55710", 
+                "impeller": "128990-42200",
+                "type": "Diesel"
+            },
+            {
+                "model": "Yanmar 4JH4E", 
+                "cyl": "4", 
+                "oil": "5.5 L (15W-40)", 
+                "oil_filter": "129150-35153", 
+                "fuel_filter": "119802-55801", 
+                "impeller": "129670-42531",
+                "type": "Diesel"
+            },
+
+            # --- MERCRUISER BENSIN ---
+            {
+                "model": "Mercruiser 3.0L", 
+                "cyl": "4", 
+                "oil": "3.8 L (25W-40)", 
+                "oil_filter": "35-866340Q03", 
+                "fuel_filter": "35-802893Q01 (Separator)", 
+                "impeller": "I drevet (Alpha)",
+                "type": "Bensin"
+            },
+            {
+                "model": "Mercruiser 4.3L V6", 
+                "cyl": "V6", 
+                "oil": "4.3 L (25W-40)", 
+                "oil_filter": "35-866340Q03", 
+                "fuel_filter": "35-802893Q01 (Separator)", 
+                "impeller": "47-59362Q01 (Bravo)",
+                "type": "Bensin"
+            },
+            {
+                "model": "Mercruiser 5.0/5.7L V8", 
+                "cyl": "V8", 
+                "oil": "4.7 L (25W-40)", 
+                "oil_filter": "35-866340Q03", 
+                "fuel_filter": "35-802893Q01 (Separator)", 
+                "impeller": "47-59362Q01 (Bravo)",
+                "type": "Bensin"
+            },
+            {
+                "model": "Mercruiser 8.1L (496)", 
+                "cyl": "V8", 
+                "oil": "8.5 L (25W-40)", 
+                "oil_filter": "35-866340Q03", 
+                "fuel_filter": "35-8M0047219 (Cool Fuel)", 
+                "impeller": "47-862232A2",
+                "type": "Bensin"
+            },
+
+            # --- DREV & SEGELDREV ---
+            {
+                "model": "VP DPH / DPI", 
+                "cyl": "-", 
+                "oil": "5.2-5.5 L (75W-90)", 
+                "oil_filter": "-", 
+                "fuel_filter": "-", 
+                "impeller": "-",
+                "type": "Drev"
+            },
+            {
+                "model": "VP SX / DPS", 
+                "cyl": "-", 
+                "oil": "2.1-2.5 L (75W-90)", 
+                "oil_filter": "-", 
+                "fuel_filter": "-", 
+                "impeller": "Ev. i drevet (Vissa modeller)",
+                "type": "Drev"
+            },
+            {
+                "model": "VP 130S / 150S", 
+                "cyl": "-", 
+                "oil": "2.9-3.0 L (15W-40/75W-90)", 
+                "oil_filter": "-", 
+                "fuel_filter": "-", 
+                "impeller": "-",
+                "type": "Drev"
+            },
+            {
+                "model": "Merc Alpha One Gen 2", 
+                "cyl": "-", 
+                "oil": "1.89 L (HP Grön)", 
+                "oil_filter": "-", 
+                "fuel_filter": "-", 
+                "impeller": "47-43026Q06",
+                "type": "Drev"
+            },
+            {
+                "model": "Merc Bravo 1/2/3", 
+                "cyl": "-", 
+                "oil": "2.6-3.0 L (HP Grön)", 
+                "oil_filter": "-", 
+                "fuel_filter": "-", 
+                "impeller": "På motor",
+                "type": "Drev"
+            },
+            {
+                "model": "Yanmar SD60", 
+                "cyl": "-", 
+                "oil": "2.8 L (15W-40)", 
+                "oil_filter": "-", 
+                "fuel_filter": "-", 
+                "impeller": "-",
+                "type": "Drev"
+            }
+        ]
+
+        # --- HJÄLPFUNKTIONER ---
+
+        def render_table(engine_list):
+            tbody = document.getElementById("oil-results-body")
+            tbody.innerHTML = "" 
+            
+            if not engine_list:
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-amber-500">Inga motorer hittades.</td></tr>'
+                return
+
+            for engine in engine_list:
+                type_color = "text-slate-400"
+                row_bg = "hover:bg-slate-700/30"
+                
+                if engine['type'] == "Bensin":
+                    type_color = "text-red-400"
+                elif engine['type'] == "Drev":
+                    type_color = "text-blue-400 font-semibold"
+                    row_bg = "bg-blue-900/10 hover:bg-blue-900/20"
+                
+                row = f"""
+                <tr class="{row_bg} transition-colors border-b border-slate-700/50">
+                    <td class="p-3 font-medium text-white">{engine['model']}</td>
+                    <td class="p-3 text-amber-400">{engine['oil']}</td>
+                    <td class="p-3">{engine.get('oil_filter', '-')}</td>
+                    <td class="p-3">{engine.get('fuel_filter', '-')}</td>
+                    <td class="p-3">{engine.get('impeller', '-')}</td>
+                    <td class="p-3 hidden md:table-cell {type_color} text-sm">{engine['type']}</td>
+                </tr>
+                """
+                tbody.innerHTML += row
+
+        def search_oil(e):
+            query = document.getElementById("oil-search").value.lower()
+            
+            filtered = []
+            for engine in engines_db:
+                # Sök i alla fält
+                search_str = f"{engine['model']} {engine['type']} {engine.get('oil_filter','')} {engine.get('fuel_filter','')} {engine.get('impeller','')}".lower()
+                if query in search_str:
+                    filtered.append(engine)
+            
+            render_table(filtered)
+
+        # --- START (Initiera allt sist) ---
+        def init_page():
+            loading = document.getElementById("loading-screen")
+            content = document.getElementById("app-content")
+            if loading: loading.style.display = "none"
+            if content: content.style.display = "block"
+            
+            # Visa alla motorer vid start
+            render_table(engines_db)
+
+        init_page()
+
+    </script>
+</body>
+</html>
