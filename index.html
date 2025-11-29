@@ -54,7 +54,7 @@
 
         <!-- VIEW: OLJEGUIDE & SERVICE (Nu enda vyn) -->
         <div id="view-oil">
-            <div class="bg-slate-800 rounded-lg shadow-lg border border-slate-700 p-6">
+            <div class="bg-slate-800 rounded-lg shadow-lg border border-slate-700 p-4 md:p-6">
                 
                 <div class="mb-6">
                     <h2 class="text-2xl font-bold text-white mb-2">Sök Motor eller Drev</h2>
@@ -71,7 +71,7 @@
                         <!-- Uppdaterad input med py-input för live-sökning -->
                         <input type="text" id="oil-search" placeholder="Sök... (t.ex. DPH, Alpha One, D6, Yanmar)" 
                             py-input="search_oil"
-                            class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white pl-10 focus:border-amber-500">
+                            class="w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white pl-10 focus:border-amber-500 transition-colors">
                         <svg class="w-5 h-5 text-slate-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         
                         <button py-click="search_oil" class="absolute right-2 top-2 bg-amber-600 hover:bg-amber-500 text-white px-4 py-1.5 rounded text-sm transition-colors">
@@ -80,8 +80,8 @@
                     </div>
                 </div>
 
-                <!-- Resultat Tabell -->
-                <div class="overflow-x-auto">
+                <!-- Resultat Tabell (Visas på Dator/Tablets) -->
+                <div class="hidden md:block overflow-x-auto">
                     <table class="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr class="bg-slate-700/50 text-slate-300 border-b border-slate-600">
@@ -90,17 +90,24 @@
                                 <th class="p-3 w-1/6">Oljefilter</th>
                                 <th class="p-3 w-1/6">Bränslefilter</th>
                                 <th class="p-3 w-1/6">Impeller</th>
-                                <th class="p-3 w-1/12 hidden md:table-cell">Typ</th>
+                                <th class="p-3 w-1/12">Typ</th>
                             </tr>
                         </thead>
                         <tbody id="oil-results-body" class="text-slate-300 divide-y divide-slate-700 text-sm">
-                            <!-- Python fyller i denna -->
+                            <!-- Python fyller i denna för desktop -->
                             <tr>
                                 <td colspan="6" class="p-4 text-center text-slate-500 italic">Laddar databas...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Resultat Kort (Visas ENDAST på Mobil) -->
+                <div id="mobile-results-body" class="md:hidden space-y-4">
+                    <!-- Python fyller i denna för mobil -->
+                    <div class="p-4 text-center text-slate-500 italic">Laddar databas...</div>
+                </div>
+
             </div>
         </div>
 
@@ -375,33 +382,77 @@
 
         def render_table(engine_list):
             tbody = document.getElementById("oil-results-body")
+            mobile_container = document.getElementById("mobile-results-body")
+            
             tbody.innerHTML = "" 
+            mobile_container.innerHTML = ""
             
             if not engine_list:
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-amber-500">Inga motorer hittades.</td></tr>'
+                msg = '<div class="p-4 text-center text-amber-500 w-full">Inga motorer hittades.</div>'
+                tbody.innerHTML = f'<tr><td colspan="6">{msg}</td></tr>'
+                mobile_container.innerHTML = msg
                 return
 
             for engine in engine_list:
                 type_color = "text-slate-400"
                 row_bg = "hover:bg-slate-700/30"
                 
+                # Färgkodning baserat på typ
                 if engine['type'] == "Bensin":
                     type_color = "text-red-400"
+                    badge_class = "bg-red-900/30 text-red-300"
                 elif engine['type'] == "Drev":
                     type_color = "text-blue-400 font-semibold"
                     row_bg = "bg-blue-900/10 hover:bg-blue-900/20"
+                    badge_class = "bg-blue-900/30 text-blue-300"
+                else:
+                    badge_class = "bg-emerald-900/30 text-emerald-300"
                 
+                # 1. Skapa Desktop Tabellrad
                 row = f"""
                 <tr class="{row_bg} transition-colors border-b border-slate-700/50">
                     <td class="p-3 font-medium text-white">{engine['model']}</td>
-                    <td class="p-3 text-amber-400">{engine['oil']}</td>
+                    <td class="p-3 text-amber-400 font-mono font-bold">{engine['oil']}</td>
                     <td class="p-3">{engine.get('oil_filter', '-')}</td>
                     <td class="p-3">{engine.get('fuel_filter', '-')}</td>
                     <td class="p-3">{engine.get('impeller', '-')}</td>
-                    <td class="p-3 hidden md:table-cell {type_color} text-sm">{engine['type']}</td>
+                    <td class="p-3 {type_color} text-sm">{engine['type']}</td>
                 </tr>
                 """
                 tbody.innerHTML += row
+
+                # 2. Skapa Mobil-kort (Card)
+                card = f"""
+                <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm flex flex-col gap-3">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                        <h3 class="font-bold text-white text-lg">{engine['model']}</h3>
+                        <span class="text-xs px-2 py-1 rounded font-semibold {badge_class}">{engine['type']}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-3 text-sm">
+                        <div class="col-span-2 bg-slate-700/30 p-2 rounded">
+                            <span class="text-slate-400 block text-xs uppercase tracking-wide mb-1">Olja & Volym</span>
+                            <span class="text-amber-400 font-mono font-bold text-base">{engine['oil']}</span>
+                        </div>
+                        
+                        <div class="bg-slate-700/20 p-2 rounded">
+                            <span class="text-slate-500 block text-xs uppercase tracking-wide mb-1">Oljefilter</span>
+                            <span class="text-white font-mono">{engine.get('oil_filter', '-')}</span>
+                        </div>
+                        
+                        <div class="bg-slate-700/20 p-2 rounded">
+                            <span class="text-slate-500 block text-xs uppercase tracking-wide mb-1">Bränslefilter</span>
+                            <span class="text-white font-mono">{engine.get('fuel_filter', '-')}</span>
+                        </div>
+                        
+                        <div class="col-span-2 bg-slate-700/20 p-2 rounded">
+                            <span class="text-slate-500 block text-xs uppercase tracking-wide mb-1">Impeller</span>
+                            <span class="text-white font-mono">{engine.get('impeller', '-')}</span>
+                        </div>
+                    </div>
+                </div>
+                """
+                mobile_container.innerHTML += card
 
         def search_oil(e):
             query = document.getElementById("oil-search").value.lower()
