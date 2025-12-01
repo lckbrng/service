@@ -2,8 +2,16 @@
 <html lang="sv" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Johans Serviceguide</title>
+    
+    <!-- PWA Settings -->
+    <meta name="theme-color" content="#020617">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Serviceguide">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
     
     <!-- Typsnitt: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,23 +25,10 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
                     colors: {
-                        brand: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            900: '#0c4a6e',
-                            950: '#082f49',
-                        },
-                        dark: {
-                            900: '#0f172a',
-                            950: '#020617',
-                        }
+                        brand: { 50: '#f0f9ff', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7' },
+                        dark: { 900: '#0f172a', 950: '#020617' }
                     }
                 }
             }
@@ -41,11 +36,11 @@
     </script>
 
     <style>
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        body { overscroll-behavior-y: none; }
 
         .glass-panel {
             background: rgba(30, 41, 59, 0.4);
@@ -66,37 +61,25 @@
             outline: none;
         }
 
-        .filter-btn {
-            transition: all 0.2s ease-in-out;
-        }
+        .filter-btn { transition: all 0.2s ease-in-out; }
         .filter-btn.active {
-            background-color: #0ea5e9;
-            color: white;
-            border-color: #0ea5e9;
+            background-color: #0ea5e9; color: white; border-color: #0ea5e9;
             box-shadow: 0 0 15px rgba(14, 165, 233, 0.3);
         }
         
-        th { font-weight: 600; letter-spacing: 0.05em; }
-
-        /* Animation för expandering */
         .details-content {
             transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
+            max-height: 0; opacity: 0; overflow: hidden;
         }
-        .details-content.open {
-            max-height: 500px; /* Tillräckligt högt värde */
-            opacity: 1;
-        }
+        .details-content.open { max-height: 500px; opacity: 1; }
         .rotate-icon { transition: transform 0.3s; }
         .rotate-icon.open { transform: rotate(180deg); }
     </style>
 </head>
-<body class="bg-dark-950 text-slate-300 font-sans antialiased min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-dark-950 to-black pb-20">
+<body class="bg-dark-950 text-slate-300 font-sans antialiased min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-dark-950 to-black pb-20 select-none">
 
     <!-- Navbar -->
-    <nav class="border-b border-white/5 bg-dark-950/50 backdrop-blur-md sticky top-0 z-50">
+    <nav class="border-b border-white/5 bg-dark-950/80 backdrop-blur-md sticky top-0 z-50 pt-safe-top">
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
@@ -107,54 +90,48 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-bold text-white tracking-tight leading-none">Johans Serviceguide</h1>
-                    <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Marina motorer & Drev</p>
+                    <p class="text-xs text-slate-500 font-medium tracking-wide uppercase">Offline Databas</p>
                 </div>
             </div>
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                <span class="relative flex h-2 w-2">
-                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span class="text-xs font-medium text-emerald-400">System Online</span>
-            </div>
+            
+            <button id="install-btn" class="hidden text-xs bg-brand-500 text-white px-3 py-1.5 rounded-full font-bold shadow-lg shadow-brand-500/30 active:scale-95 transition-transform">
+                Installera
+            </button>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main id="app-content" class="container mx-auto px-4 py-12 max-w-[1400px]">
+    <main id="app-content" class="container mx-auto px-4 py-8 max-w-[1400px]">
         
-        <!-- Hero & Search -->
-        <div class="text-center max-w-3xl mx-auto mb-12">
-            <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                Sök specifikationer för <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-emerald-400">Motorer & Drev</span>
-            </h2>
-            
-            <div class="flex flex-wrap justify-center gap-3 mb-8">
-                <button onclick="setFilter('all')" id="btn-all" class="filter-btn active px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500">Visa Alla</button>
-                <button onclick="setFilter('VP')" id="btn-VP" class="filter-btn px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500 hover:text-white">Volvo Penta</button>
-                <button onclick="setFilter('Yanmar')" id="btn-Yanmar" class="filter-btn px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500 hover:text-white">Yanmar</button>
-                <button onclick="setFilter('Merc')" id="btn-Merc" class="filter-btn px-5 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-sm hover:border-slate-500 hover:text-white">Mercruiser</button>
+        <!-- Search -->
+        <div class="text-center max-w-3xl mx-auto mb-8">
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                <button onclick="setFilter('all')" id="btn-all" class="filter-btn active px-4 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-xs sm:text-sm hover:border-slate-500">Alla</button>
+                <button onclick="setFilter('VP')" id="btn-VP" class="filter-btn px-4 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-xs sm:text-sm hover:border-slate-500">Volvo</button>
+                <button onclick="setFilter('Yanmar')" id="btn-Yanmar" class="filter-btn px-4 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-xs sm:text-sm hover:border-slate-500">Yanmar</button>
+                <button onclick="setFilter('Merc')" id="btn-Merc" class="filter-btn px-4 py-2 rounded-full border border-slate-700 bg-slate-800/50 text-slate-400 font-medium text-xs sm:text-sm hover:border-slate-500">Merc</button>
             </div>
 
             <div class="relative group max-w-2xl mx-auto">
                 <div class="absolute -inset-1 bg-gradient-to-r from-brand-500 to-emerald-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                 <div class="relative flex items-center">
                     <svg class="absolute left-4 w-6 h-6 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    <input type="text" id="oil-search" placeholder="Sök modell (t.ex. D6-370, Alpha One, V8...)" 
+                    <input type="text" id="oil-search" placeholder="Sök motor/drev..." 
                         oninput="searchOil()"
-                        class="glass-input w-full rounded-xl py-4 pl-14 pr-32 text-white placeholder-slate-500 text-lg shadow-2xl">
-                    <div class="absolute right-2">
-                        <kbd class="hidden md:inline-block px-2 py-1 text-xs font-semibold text-slate-500 bg-slate-800 rounded border border-slate-700">ESC</kbd>
+                        class="glass-input w-full rounded-xl py-4 pl-14 pr-12 text-white placeholder-slate-500 text-lg shadow-2xl">
+                    <div class="absolute right-3" id="clear-btn" style="opacity: 0; transition: opacity 0.2s;" onclick="clearSearch()">
+                        <div class="bg-slate-700 rounded-full p-1 cursor-pointer">
+                            <svg class="w-4 h-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Data Display Section -->
-        <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl">
+        <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl min-h-[50vh]">
             
-            <!-- Resultat Tabell (Desktop) -->
+            <!-- Desktop Table -->
             <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -165,281 +142,106 @@
                             <th class="p-5">Oljefilter</th>
                             <th class="p-5">Bränslefilter</th>
                             <th class="p-5">Impeller</th>
-                            <th class="p-5">Övrigt / Notering</th>
+                            <th class="p-5">Övrigt</th>
                             <th class="p-5 text-right">Typ</th>
                         </tr>
                     </thead>
-                    <tbody id="oil-results-body" class="text-slate-300 text-sm divide-y divide-white/5">
-                        <!-- JS fyller i denna -->
-                    </tbody>
+                    <tbody id="oil-results-body" class="text-slate-300 text-sm divide-y divide-white/5"></tbody>
                 </table>
             </div>
 
-            <!-- Resultat Kort (Mobil/Tablet) -->
-            <div id="mobile-results-body" class="lg:hidden p-4 space-y-3">
-                <!-- JS fyller i denna -->
-            </div>
+            <!-- Mobile Accordion Cards -->
+            <div id="mobile-results-body" class="lg:hidden p-3 space-y-3"></div>
             
             <div class="bg-slate-950/50 border-t border-white/5 p-4 text-center">
                 <p class="text-xs text-slate-500">
-                    ⚠️ Kontrollera alltid värden mot motorns serienummer och oljesticka.
+                    Databas v2.3 • Fungerar offline
                 </p>
             </div>
         </div>
 
     </main>
 
-    <footer class="text-center py-8 text-slate-600 text-sm">
-        <p>&copy; 2025 Johans Serviceguide. All rights reserved.</p>
-    </footer>
-
     <!-- JAVASCRIPT KOD -->
     <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker registrerad!', reg))
+                    .catch(err => console.log('Service Worker fel:', err));
+            });
+        }
+
+        // Install Button Logic
+        let deferredPrompt;
+        const installBtn = document.getElementById('install-btn');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.classList.remove('hidden');
+        });
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') installBtn.classList.add('hidden');
+                deferredPrompt = null;
+            }
+        });
+
+        // --- DATABAS ---
         const enginesDb = [
             // --- VOLVO PENTA DIESEL ---
-            { 
-                model: "VP D1-13 / D1-20", cyl: "2/3", 
-                oil: "1.9/3.2 L (15W-40)", coolant: "~3.0 L (VCS Gul/Grön)",
-                oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", 
-                other: "Anod: Saildrev", type: "Diesel" 
-            },
-            { 
-                model: "VP D1-30 / D2-40", cyl: "3/4", 
-                oil: "3.5/6.5 L (15W-40)", coolant: "4.1 / 6.4 L (VCS/Grön)",
-                oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", 
-                other: "Rem: 21951188", type: "Diesel" 
-            },
-            { 
-                model: "VP D2-50/55/60/75", cyl: "4", 
-                oil: "10.5 L (15W-40)", coolant: "9.5 L (VCS Gul)",
-                oil_filter: "3840525", fuel_filter: "861477", impeller: "21951346", 
-                other: "Rem: 21453267", type: "Diesel" 
-            },
-            { 
-                model: "VP D3 (5-cyl)", cyl: "5", 
-                oil: "6.3 L (15W-40)", coolant: "8.0 L (VCS Gul)",
-                oil_filter: "8692305", fuel_filter: "31261191", impeller: "21951352", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "VP D4-180/260/300", cyl: "4", 
-                oil: "12.5 L (15W-40)", coolant: "~13.0 L (VCS Gul)",
-                oil_filter: "22030848 / 22030852", fuel_filter: "21718912", impeller: "3588475", 
-                other: "Anod motor: 838929", type: "Diesel" 
-            },
-            { 
-                model: "VP D6-310/370/435", cyl: "6", 
-                oil: "20.0 L (15W-40)", coolant: "~16.0 L (VCS Gul)",
-                oil_filter: "22030848 / 22030852", fuel_filter: "21718912", impeller: "3588475", 
-                other: "Anod motor: 838929", type: "Diesel" 
-            },
-            { 
-                model: "VP MD2020", cyl: "3", 
-                oil: "2.8 L (15W-40)", coolant: "3.0 L (Grön)",
-                oil_filter: "3840525", fuel_filter: "861477", impeller: "3593659", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "VP MD2030/2040", cyl: "3/4", 
-                oil: "3.5/6.5 L (15W-40)", coolant: "4.0 / 6.0 L (Grön)",
-                oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "VP KAD 32", cyl: "4", 
-                oil: "9.0 L (15W-40)", coolant: "13 L (Grön)",
-                oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", 
-                other: "Kompressorolja: 0.1L", type: "Diesel" 
-            },
-            { 
-                model: "VP KAD 42/43/44/300", cyl: "6", 
-                oil: "11.0 L (15W-40)", coolant: "19 L (Grön)",
-                oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", 
-                other: "Kompressorolja: 0.1L", type: "Diesel" 
-            },
-            { 
-                model: "VP TAMD 31/41", cyl: "4/6", 
-                oil: "9/11 L (15W-40)", coolant: "13/19 L (Grön)",
-                oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", 
-                other: "Anod Vv-växlare", type: "Diesel" 
-            },
-            { model: "VP D9/D11", cyl: "6", oil: "38.0 L", coolant: "VCS", spec: "VDS-3 / VDS-4.5 (15W-40)", type: "Diesel" },
+            { model: "VP D1-13 / D1-20", cyl: "2/3", oil: "1.9/3.2 L (15W-40)", coolant: "~3.0 L (VCS Gul/Grön)", oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", other: "Anod: Saildrev", type: "Diesel" },
+            { model: "VP D1-30 / D2-40", cyl: "3/4", oil: "3.5/6.5 L (15W-40)", coolant: "4.1 / 6.4 L (VCS/Grön)", oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", other: "Rem: 21951188", type: "Diesel" },
+            { model: "VP D2-50/55/60/75", cyl: "4", oil: "10.5 L (15W-40)", coolant: "9.5 L (VCS Gul)", oil_filter: "3840525", fuel_filter: "861477", impeller: "21951346", other: "Rem: 21453267", type: "Diesel" },
+            { model: "VP D3 (5-cyl)", cyl: "5", oil: "6.3 L (15W-40)", coolant: "8.0 L (VCS Gul)", oil_filter: "8692305", fuel_filter: "31261191", impeller: "21951352", other: "-", type: "Diesel" },
+            { model: "VP D4-180/260/300", cyl: "4", oil: "12.5 L (15W-40)", coolant: "~13.0 L (VCS Gul)", oil_filter: "22030848 / 22030852", fuel_filter: "21718912", impeller: "3588475", other: "Anod motor: 838929", type: "Diesel" },
+            { model: "VP D6-310/370/435", cyl: "6", oil: "20.0 L (15W-40)", coolant: "~16.0 L (VCS Gul)", oil_filter: "22030848 / 22030852", fuel_filter: "21718912", impeller: "3588475", other: "Anod motor: 838929", type: "Diesel" },
+            { model: "VP MD2020", cyl: "3", oil: "2.8 L (15W-40)", coolant: "3.0 L (Grön)", oil_filter: "3840525", fuel_filter: "861477", impeller: "3593659", other: "-", type: "Diesel" },
+            { model: "VP MD2030/2040", cyl: "3/4", oil: "3.5/6.5 L (15W-40)", coolant: "4.0 / 6.0 L (Grön)", oil_filter: "3840525", fuel_filter: "861477", impeller: "22222936", other: "-", type: "Diesel" },
+            { model: "VP KAD 32", cyl: "4", oil: "9.0 L (15W-40)", coolant: "13 L (Grön)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", other: "Kompressorolja: 0.1L", type: "Diesel" },
+            { model: "VP KAD 42/43/44/300", cyl: "6", oil: "11.0 L (15W-40)", coolant: "19 L (Grön)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", other: "Kompressorolja: 0.1L", type: "Diesel" },
+            { model: "VP TAMD 31", cyl: "4", oil: "9.0 L (15W-40)", coolant: "13 L (Grön)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", other: "Anod Vv-växlare", type: "Diesel" },
+            { model: "VP TAMD 41", cyl: "6", oil: "11.0 L (15W-40)", coolant: "19 L (Grön)", oil_filter: "423135", fuel_filter: "21624740", impeller: "21951356", other: "Anod Vv-växlare", type: "Diesel" },
+            { model: "VP D9/D11", cyl: "6", oil: "38.0 L", coolant: "VCS", oil_filter: "478736", fuel_filter: "21718912", impeller: "3838288", other: "Spec: VDS-3 / VDS-4.5", type: "Diesel" },
 
             // --- VOLVO PENTA BENSIN ---
-            { 
-                model: "VP 4.3/5.0/5.7 Gi/GXi", cyl: "V6/V8", 
-                oil: "4.5-5.7 L (Syntet 25W-40)", coolant: "10-14 L (VCS/Grön)",
-                oil_filter: "835440 / 8692305", fuel_filter: "3862228", impeller: "21213660", 
-                other: "Stift: AC 41-993", type: "Bensin" 
-            },
-            { 
-                model: "VP V6/V8 (Gen 5)", cyl: "V6/V8", 
-                oil: "5.7-7.1 L (Syntet)", coolant: "10-12 L (VCS)",
-                oil_filter: "21695869", fuel_filter: "24332306", impeller: "22398561", 
-                other: "Stift: AC 41-101", type: "Bensin" 
-            },
-            { 
-                model: "VP AQ130/145/151", cyl: "4", 
-                oil: "3.8 L (15W-40)", coolant: "Sjövatten / 6-7L",
-                oil_filter: "3517857", fuel_filter: "-", impeller: "21951350", 
-                other: "Rem: 966382", type: "Bensin" 
-            },
+            { model: "VP 4.3/5.0/5.7 Gi/GXi", cyl: "V6/V8", oil: "4.5-5.7 L (Syntet 25W-40)", coolant: "10-14 L (VCS/Grön)", oil_filter: "835440 / 8692305", fuel_filter: "3862228", impeller: "21213660", other: "Stift: AC 41-993", type: "Bensin" },
+            { model: "VP V6/V8 (Gen 5)", cyl: "V6/V8", oil: "5.7-7.1 L (Syntet)", coolant: "10-12 L (VCS)", oil_filter: "21695869", fuel_filter: "24332306", impeller: "22398561", other: "Stift: AC 41-101", type: "Bensin" },
+            { model: "VP AQ130/145/151", cyl: "4", oil: "3.8 L (15W-40)", coolant: "Sjövatten / 6-7L", oil_filter: "3517857", fuel_filter: "-", impeller: "21951350", other: "Rem: 966382", type: "Bensin" },
 
             // --- YANMAR DIESEL ---
-            { 
-                model: "Yanmar 1GM10", cyl: "1", 
-                oil: "1.3 L (15W-40)", coolant: "Sjövattenkyld",
-                oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "128100-42070", 
-                other: "Anod: 27210-200300", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 2GM20/3GM30", cyl: "2/3", 
-                oil: "2.0/2.6 L (15W-40)", coolant: "Sjövatten (F=4L)",
-                oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "124223-42092", 
-                other: "Anod: 27210-200300", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 3YM20/30", cyl: "3", 
-                oil: "2.8 L (15W-40)", coolant: "4.5 / 6.0 L",
-                oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "128990-42200", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 4JH4E", cyl: "4", 
-                oil: "5.5 L (15W-40)", coolant: "7.0 L",
-                oil_filter: "129150-35153", fuel_filter: "119802-55801", impeller: "129670-42531", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 4JH45/57/80", cyl: "4", 
-                oil: "5.5-6.0 L (15W-40)", coolant: "6-7 L",
-                oil_filter: "129150-35170", fuel_filter: "129A00-55800", impeller: "129670-42531", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 6LPA-STP", cyl: "6", 
-                oil: "10.5 L (15W-40)", coolant: "15 L",
-                oil_filter: "119770-90620", fuel_filter: "119773-55510", impeller: "119773-42600", 
-                other: "Kamrem var 1200h!", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 8LV-320/370", cyl: "V8", 
-                oil: "10.0 L (15W-40)", coolant: "14 L",
-                oil_filter: "119798-35110", fuel_filter: "119798-55110", impeller: "119593-42202", 
-                other: "-", type: "Diesel" 
-            },
-            { 
-                model: "Yanmar 6LY-serien", cyl: "6", 
-                oil: "~20.0 L (15W-40)", coolant: "20-25 L",
-                oil_filter: "119593-35100", fuel_filter: "41650-502330", impeller: "119574-42530", 
-                other: "Anoder x6 st", type: "Diesel" 
-            },
+            { model: "Yanmar 1GM10", cyl: "1", oil: "1.3 L (15W-40)", coolant: "Sjövattenkyld", oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "128100-42070", other: "Anod: 27210-200300", type: "Diesel" },
+            { model: "Yanmar 2GM20/3GM30", cyl: "2/3", oil: "2.0/2.6 L (15W-40)", coolant: "Sjövatten (F=4L)", oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "124223-42092", other: "Anod: 27210-200300", type: "Diesel" },
+            { model: "Yanmar 3YM20/30", cyl: "3", oil: "2.8 L (15W-40)", coolant: "4.5 / 6.0 L", oil_filter: "119305-35151", fuel_filter: "104500-55710", impeller: "128990-42200", other: "-", type: "Diesel" },
+            { model: "Yanmar 4JH4E", cyl: "4", oil: "5.5 L (15W-40)", coolant: "7.0 L", oil_filter: "129150-35153", fuel_filter: "119802-55801", impeller: "129670-42531", other: "-", type: "Diesel" },
+            { model: "Yanmar 4JH45/57/80", cyl: "4", oil: "5.5-6.0 L (15W-40)", coolant: "6-7 L", oil_filter: "129150-35170", fuel_filter: "129A00-55800", impeller: "129670-42531", other: "-", type: "Diesel" },
+            { model: "Yanmar 6LPA-STP", cyl: "6", oil: "10.5 L (15W-40)", coolant: "15 L", oil_filter: "119770-90620", fuel_filter: "119773-55510", impeller: "119773-42600", other: "Kamrem var 1200h!", type: "Diesel" },
+            { model: "Yanmar 8LV-320/370", cyl: "V8", oil: "10.0 L (15W-40)", coolant: "14 L", oil_filter: "119798-35110", fuel_filter: "119798-55110", impeller: "119593-42202", other: "-", type: "Diesel" },
+            { model: "Yanmar 6LY-serien", cyl: "6", oil: "~20.0 L (15W-40)", coolant: "20-25 L", oil_filter: "119593-35100", fuel_filter: "41650-502330", impeller: "119574-42530", other: "Anoder x6 st", type: "Diesel" },
 
             // --- MERCRUISER BENSIN ---
-            { 
-                model: "Mercruiser 3.0L / TKS", cyl: "4", 
-                oil: "3.8 L (25W-40)", coolant: "Sjövatten (oftast)",
-                oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "I drevet (Alpha)", 
-                other: "Stift: NGK BPR6EFS", type: "Bensin" 
-            },
-            { 
-                model: "Mercruiser 4.3L V6", cyl: "V6", 
-                oil: "4.3 L (25W-40)", coolant: "Sjövatten (oftast)",
-                oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "47-59362Q01", 
-                other: "Stift: NGK BPR6EFS", type: "Bensin" 
-            },
-            { 
-                model: "Mercruiser 4.5L V6 (Merc)", cyl: "V6", 
-                oil: "4.25 L (25W-40)", coolant: "Färskvattenkyld",
-                oil_filter: "35-866340Q03", fuel_filter: "35-879885Q (Gen 3)", impeller: "47-59362Q01", 
-                other: "Stift: NGK BPR5EFS", type: "Bensin" 
-            },
-            { 
-                model: "Mercruiser 5.0/5.7L V8", cyl: "V8", 
-                oil: "4.7 L (25W-40)", coolant: "Sjövatten (oftast)",
-                oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "47-59362Q01", 
-                other: "Stift: NGK BPR6EFS", type: "Bensin" 
-            },
-            { 
-                model: "Mercruiser 6.2L V8 (Merc)", cyl: "V8", 
-                oil: "4.7 L (25W-40)", coolant: "Färskvattenkyld",
-                oil_filter: "35-866340Q03", fuel_filter: "35-879885Q (Gen 3)", impeller: "47-59362Q01", 
-                other: "Stift: NGK BPR5EFS", type: "Bensin" 
-            },
-            { 
-                model: "Mercruiser 8.1L (496)", cyl: "V8", 
-                oil: "8.5 L (25W-40)", coolant: "14-16 L (Dex-Cool)",
-                oil_filter: "35-866340Q03", fuel_filter: "35-8M0047219", impeller: "47-862232A2", 
-                other: "Stift: AC 41-983", type: "Bensin" 
-            },
+            { model: "Mercruiser 3.0L / TKS", cyl: "4", oil: "3.8 L (25W-40)", coolant: "Sjövatten (oftast)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "I drevet (Alpha)", other: "Stift: NGK BPR6EFS", type: "Bensin" },
+            { model: "Mercruiser 4.3L V6", cyl: "V6", oil: "4.3 L (25W-40)", coolant: "Sjövatten (oftast)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "47-59362Q01", other: "Stift: NGK BPR6EFS", type: "Bensin" },
+            { model: "Mercruiser 4.5L V6 (Merc)", cyl: "V6", oil: "4.25 L (25W-40)", coolant: "Färskvattenkyld", oil_filter: "35-866340Q03", fuel_filter: "35-879885Q (Gen 3)", impeller: "47-59362Q01", other: "Stift: NGK BPR5EFS", type: "Bensin" },
+            { model: "Mercruiser 5.0/5.7L V8", cyl: "V8", oil: "4.7 L (25W-40)", coolant: "Sjövatten (oftast)", oil_filter: "35-866340Q03", fuel_filter: "35-802893Q01", impeller: "47-59362Q01", other: "Stift: NGK BPR6EFS", type: "Bensin" },
+            { model: "Mercruiser 6.2L V8 (Merc)", cyl: "V8", oil: "4.7 L (25W-40)", coolant: "Färskvattenkyld", oil_filter: "35-866340Q03", fuel_filter: "35-879885Q (Gen 3)", impeller: "47-59362Q01", other: "Stift: NGK BPR5EFS", type: "Bensin" },
+            { model: "Mercruiser 8.1L (496)", cyl: "V8", oil: "8.5 L (25W-40)", coolant: "14-16 L (Dex-Cool)", oil_filter: "35-866340Q03", fuel_filter: "35-8M0047219", impeller: "47-862232A2", other: "Stift: AC 41-983", type: "Bensin" },
 
             // --- DREV & SEGELDREV ---
-            { 
-                model: "VP DPH / DPI", cyl: "-", 
-                oil: "5.2-5.5 L (75W-90)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "-", 
-                other: "Drevsats Anod", type: "Drev" 
-            },
-            { 
-                model: "VP SX / DPS", cyl: "-", 
-                oil: "2.1-2.5 L (75W-90)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "I drevet (SX)", 
-                other: "Drevsats Anod", type: "Drev" 
-            },
-            { 
-                model: "VP 280 / 290 (SP)", cyl: "-", 
-                oil: "2.6 L (Motorolja 15W-40)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "-", 
-                other: "Anod Ring/Stång", type: "Drev" 
-            },
-            { 
-                model: "VP 290 DP / DP-E", cyl: "-", 
-                oil: "2.7 L (75W-90)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "-", 
-                other: "Anod Ring/Stång", type: "Drev" 
-            },
-            { 
-                model: "VP IPS (IPS1/IPS2)", cyl: "-", 
-                oil: "13-15 / 20+ L (75W-90)", coolant: "-",
-                oil_filter: "Filter: 3582732", fuel_filter: "-", impeller: "-", 
-                other: "Anod: 40005875", type: "Drev" 
-            },
-            { 
-                model: "VP 110S / 120S", cyl: "-", 
-                oil: "2.2-2.6 L (Motorolja)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "-", 
-                other: "Anod: 876286", type: "Drev" 
-            },
-            { 
-                model: "VP 130S / 150S", cyl: "-", 
-                oil: "2.9-3.0 L (75W-90)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "-", 
-                other: "Anod: 3888305", type: "Drev" 
-            },
-            { 
-                model: "Merc Alpha One Gen 2", cyl: "-", 
-                oil: "1.89 L (HP Grön)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "47-43026Q06", 
-                other: "Anodkit Alpha 2", type: "Drev" 
-            },
-            { 
-                model: "Merc Bravo 1/2/3", cyl: "-", 
-                oil: "2.6-3.0 L (HP Grön)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "På motor", 
-                other: "Anodkit Bravo", type: "Drev" 
-            },
-            { 
-                model: "Yanmar ZT370", cyl: "-", 
-                oil: "2.5 L (Syntet 75W-90)", coolant: "-",
-                oil_filter: "Filter: 196311-92710", fuel_filter: "-", impeller: "-", 
-                other: "Hydraulkoppling", type: "Drev" 
-            },
-            { 
-                model: "Yanmar SD60", cyl: "-", 
-                oil: "2.8 L (15W-40)", coolant: "-",
-                oil_filter: "-", fuel_filter: "-", impeller: "-", 
-                other: "Anod: 2-delad", type: "Drev" 
-            }
+            { model: "VP DPH / DPI", cyl: "-", oil: "5.2-5.5 L (75W-90)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "-", other: "Drevsats Anod", type: "Drev" },
+            { model: "VP SX / DPS", cyl: "-", oil: "2.1-2.5 L (75W-90)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "I drevet (SX)", other: "Drevsats Anod", type: "Drev" },
+            { model: "VP 280 / 290 (SP)", cyl: "-", oil: "2.6 L (Motorolja 15W-40)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "-", other: "Anod Ring/Stång", type: "Drev" },
+            { model: "VP 290 DP / DP-E", cyl: "-", oil: "2.7 L (75W-90)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "-", other: "Anod Ring/Stång", type: "Drev" },
+            { model: "VP IPS (IPS1/IPS2)", cyl: "-", oil: "13-15 / 20+ L (75W-90)", coolant: "-", oil_filter: "Filter: 3582732", fuel_filter: "-", impeller: "-", other: "Anod: 40005875", type: "Drev" },
+            { model: "VP 110S / 120S", cyl: "-", oil: "2.2-2.6 L (Motorolja)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "-", other: "Anod: 876286", type: "Drev" },
+            { model: "VP 130S / 150S", cyl: "-", oil: "2.9-3.0 L (75W-90)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "-", other: "Anod: 3888305", type: "Drev" },
+            { model: "Merc Alpha One Gen 2", cyl: "-", oil: "1.89 L (HP Grön)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "47-43026Q06", other: "Anodkit Alpha 2", type: "Drev" },
+            { model: "Merc Bravo 1/2/3", cyl: "-", oil: "2.6-3.0 L (HP Grön)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "På motor", other: "Anodkit Bravo", type: "Drev" },
+            { model: "Yanmar ZT370", cyl: "-", oil: "2.5 L (Syntet 75W-90)", coolant: "-", oil_filter: "Filter: 196311-92710", fuel_filter: "-", impeller: "-", other: "Hydraulkoppling", type: "Drev" },
+            { model: "Yanmar SD60", cyl: "-", oil: "2.8 L (15W-40)", coolant: "-", oil_filter: "-", fuel_filter: "-", impeller: "-", other: "Anod: 2-delad", type: "Drev" }
         ];
 
         let currentFilter = 'all';
@@ -451,7 +253,6 @@
             searchOil();
         }
 
-        // --- EXPANSION FUNCTION ---
         function toggleDetails(index) {
             const content = document.getElementById(`details-${index}`);
             const icon = document.getElementById(`icon-${index}`);
@@ -491,7 +292,7 @@
                     badgeClass = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"; 
                 }
 
-                // 1. Desktop Row
+                // Desktop Row
                 const row = `
                 <tr class="hover:bg-white/5 transition-colors group">
                     <td class="p-5 font-semibold text-white group-hover:text-brand-400 transition-colors">${engine.model}</td>
@@ -510,7 +311,7 @@
                 `;
                 tbody.innerHTML += row;
 
-                // 2. Mobile Accordion Card
+                // Mobil Kort (Uppdaterad med färgkodning)
                 let borderClass = engine.type === "Bensin" ? "border-l-rose-500" : (engine.type === "Drev" ? "border-l-brand-500" : "border-l-emerald-500");
                 
                 const card = `
@@ -531,7 +332,6 @@
                         <span class="text-slate-400">Olja: <span class="text-brand-400 font-mono font-bold">${engine.oil}</span></span>
                     </div>
 
-                    <!-- Expandable content -->
                     <div id="details-${index}" class="details-content mt-2 space-y-3 border-t border-white/5 pt-3">
                         <div class="grid grid-cols-2 gap-3">
                             <div>
@@ -546,10 +346,10 @@
                                 <div class="text-[10px] uppercase font-semibold block mb-1">
                                     <span class="text-amber-400">Olja</span> <span class="text-slate-500">/</span> <span class="text-rose-400">Bränsle</span> Filter
                                 </div>
-                                <div class="font-mono text-sm break-words">
-                                    <span class="text-amber-400">${engine.oil_filter || '-'}</span>
-                                    <span class="text-slate-500 mx-1">/</span>
-                                    <span class="text-rose-400">${engine.fuel_filter || '-'}</span>
+                                <div class="font-mono text-sm break-words bg-white/5 p-2 rounded">
+                                    <span class="text-amber-400 font-bold">${engine.oil_filter || '-'}</span>
+                                    <span class="text-slate-500 mx-2">|</span>
+                                    <span class="text-rose-400 font-bold">${engine.fuel_filter || '-'}</span>
                                 </div>
                             </div>
                             <div class="col-span-2">
@@ -564,11 +364,19 @@
             });
         }
 
+        function clearSearch() {
+            const input = document.getElementById("oil-search");
+            input.value = "";
+            searchOil();
+            input.focus();
+        }
+
         function searchOil() {
             const query = document.getElementById("oil-search").value.toLowerCase();
-            const clearBtn = document.querySelector('kbd');
-            if(query.length > 0 && clearBtn) clearBtn.style.opacity = '1';
-            else if(clearBtn) clearBtn.style.opacity = '0';
+            const clearBtn = document.getElementById('clear-btn');
+            
+            if(query.length > 0) clearBtn.style.opacity = '1';
+            else clearBtn.style.opacity = '0';
 
             const filtered = enginesDb.filter(engine => {
                 if (currentFilter !== 'all' && !engine.model.includes(currentFilter)) return false;
@@ -590,7 +398,6 @@
         document.addEventListener("DOMContentLoaded", () => {
             renderTable(enginesDb);
         });
-
     </script>
 </body>
 </html>
